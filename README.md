@@ -1,6 +1,31 @@
-# /note — zero-context-pollution idea capture for Claude Code
+# claude-note — zero-context-pollution idea capture for Claude Code
 
-Jot down random ideas during a Claude Code conversation without adding anything to the current session's context. Ideas persist in a local SQLite DB you can list/view/remove later.
+Jot down random ideas during a Claude Code conversation using "/note" without adding anything to the current session's context. Ideas persist in a local SQLite DB you can list/view/remove later.
+
+e.g. In Claude Code:
+
+```
+/note meals Use less salt
+
+UserPromptSubmit operation blocked by hook:
+  saved #9 to meals
+
+  Original prompt: /note meals Use less salt
+```
+
+```
+/note list
+UserPromptSubmit operation blocked by hook:
+  9  2026-04-25 03:21:06  meals           Use less salt
+  8  2026-04-25 03:20:21  meals           Try that new recipe that Pete gave me
+  7  2026-04-25 03:19:47  ShowerThoughts  Look into a new approach to world peace
+  6  2026-04-25 03:18:57  MyProject       Improve test coverage across the new code
+  4 notes
+```
+
+NOTE: When you run the "/note" command it always prints out "UserPromptSubmit operation blocked by hook:" which is annoying but can't be avoided (that I know of) so you gotta live with that.
+
+PRs welcome!
 
 ## How it works
 
@@ -35,9 +60,11 @@ Installer is idempotent. It:
 /note                      show usage help
 ```
 
+e.g. `/note myproject Add a clever feature to do XYZ`
+
 Also works as a standalone CLI:
 ```
-python3 note.py add audiobook "Test Gemini image model"
+python3 note.py add myproject "Add a clever feature to do XYZ"
 python3 note.py list
 python3 note.py view 1
 python3 note.py rm 1
@@ -47,8 +74,9 @@ python3 note.py rm 1
 
 - Default path: sibling of this script's parent dir, i.e. `<note.py's parent>/../notes.db`.
 - Override: set `NOTE_DB` env var to any path.
-- **Home machine (WSL+Windows sharing):** install lives at `C:\Users\<you>\.claude\note\note.py` = `/mnt/c/Users/<you>/.claude/note/note.py`. Both platforms invoke the same script, both compute `…/notes.db` next to it, both end up at the same NTFS file. No env var needed.
-- **Work machine (native Ubuntu):** install at `~/.claude/note/note.py`; DB at `~/.claude/notes.db`. Independent of home.
+- **Linux:** install at `~/.claude/note/note.py`; DB at `~/.claude/notes.db`.
+- **Windows:** install at `C:\Users\<you>\.claude\note\note.py`; DB at `C:\Users\<you>\.claude\notes.db`.
+- **WSL+Windows sharing:** install lives at `C:\Users\<you>\.claude\note\note.py` = `/mnt/c/Users/<you>/.claude/note/note.py`. Both platforms invoke the same script, both compute `…/notes.db` and end up at the same NTFS file. No env var needed.
 
 Schema: `id, topic, idea, created_at, project_dir` (project_dir captured from the session's `cwd` for context).
 
@@ -74,4 +102,4 @@ The DB is plaintext on disk. Don't jot secrets. On the home machine the DB lives
 python3 -m unittest -v test_note
 ```
 
-44 tests covering CRUD, parsing, hook-mode I/O, end-to-end subprocess calls, and path resolution.
+48 tests covering CRUD, parsing, hook-mode I/O, end-to-end subprocess calls, and path resolution.
