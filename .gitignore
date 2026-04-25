@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+notes.db
+notes.db-journal
+notes.db-wal
+notes.db-shm
+notes.db.bak
+hook-errors.log
+settings.json.bak
+note-test-*/
+.note-test-*
+.DS_Store
